@@ -38,6 +38,8 @@ interface ImportMetaEnv {
   readonly CLERK_SECRET_KEY: string;
   /** https://liveblocks.io/ */
   readonly LIVE_BLOCKS_PUBLIC_API_KEY: string;
+  /** https://groq.com/ */
+  readonly GROQ_API_KEY: string;
 }
 
 interface ImportMeta {

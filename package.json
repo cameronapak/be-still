@@ -34,6 +34,7 @@
     "astro": "^4.16.7",
     "astro-iconify": "^1.2.0",
     "better-sqlite3": "^11.5.0",
+    "groq-sdk": "^0.7.0",
     "htmx.org": "2.0.1",
     "isomorphic-dompurify": "^2.16.0",
     "marked": "^14.1.3",

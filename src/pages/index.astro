@@ -24,7 +24,14 @@ import Layout from "../layouts/Layout.astro";
         <div class="space-y-4 mt-4">
           <div>
             <label class="block mb-2">What's your name?</label>
-            <input type="text" x-model="myName" class="input input-bordered w-full bg-white bg-opacity-10" />
+            <input
+              type="text"
+              x-init="$el.value = myName || ''"
+              @input.debounce.500ms="validateName($el.value)"
+              :class="{'input-error': nameError}"
+              class="input input-bordered w-full bg-white bg-opacity-10"
+            />
+            <div x-show="nameError" class="text-error text-sm mt-1" x-text="nameError"></div>
           </div>
           <div>
             <label class="block mb-2">How are you showing up today?</label>
@@ -99,7 +106,49 @@ import Layout from "../layouts/Layout.astro";
           { value: "🎵", label: "Worshiping" },
           { value: "🕯️", label: "Meditating" }
         ],
+        nameError: "",
+        async validateName(name: string) {
+          if (!name) {
+            this.nameError = "";
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/groq.json', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ name })
+            });
+
+            if (response.status === 429) {
+              this.nameError = "Too many requests. Please try again later.";
+              return;
+            }
+
+            const data = await response.json();
+            
+            if (!data.isAppropriate) {
+              this.nameError = data.message;
+              this.myName = ""; // Clear invalid name
+            } else {
+              this.nameError = "";
+              this.myName = name;
+            }
+          } catch (error) {
+            console.error("Name validation error:", error);
+            // Fallback to basic validation if API check fails
+            if (name.length < 2 || name.length > 30) {
+              this.nameError = "Name must be between 2 and 30 characters";
+              this.myName = "";
+            }
+          }
+        },
         startQuietTime() {
+          if (this.nameError) {
+            return;
+          }
           (this.$refs.settingsModalEl as HTMLDialogElement).close();
         },
         // @ts-ignore
@@ -156,7 +205,7 @@ import Layout from "../layouts/Layout.astro";
         getPositionStyle(index: number, total: number) {
           if (total === 1) {
             // Center the current user's avatar
-            return '';
+            return "";
           }
 
           // Adjust radius based on number of participants
