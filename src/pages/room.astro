@@ -101,7 +101,6 @@ import Layout from "../layouts/Layout.astro";
         ],
         startQuietTime() {
           (this.$refs.settingsModalEl as HTMLDialogElement).close();
-          this.setupRoom();
         },
         // @ts-ignore
         myName: this.$persist(""),
@@ -150,6 +149,9 @@ import Layout from "../layouts/Layout.astro";
           this.$watch("myName", (value) => {
             this.room?.updatePresence({ emoji: this.myPresence.emoji, name: value });
           });
+        },
+        init() {
+          this.setupRoom();
         },
         getPositionStyle(index: number, total: number) {
           if (total === 1) {
