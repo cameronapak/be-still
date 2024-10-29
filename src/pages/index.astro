@@ -1,12 +1,7 @@
 ---
 import { Icon } from "astro-iconify";
-import { SignUpButton, SignInButton } from "@clerk/astro/components";
 import Layout from "../layouts/Layout.astro";
 import IconBlock from "../components/IconBlock.astro";
-
-if (Astro.locals.auth().userId) {
-  return Astro.redirect("/dashboard");
-}
 
 // The browser should always check freshness
 Astro.response.headers.set("cache-control", "public, max-age=0, must-revalidate");
@@ -26,8 +21,8 @@ Astro.response.headers.set("netlify-cache-tag", "index");
   <header class="relative overflow-hidden not-prose">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-end gap-3 mt-6">
-        <SignInButton class="btn btn-ghost shadow-none" />
-        <SignUpButton class="btn btn-ghost shadow-none" />
+        <!-- <SignInButton class="btn btn-ghost shadow-none" />
+        <SignUpButton class="btn btn-ghost shadow-none" /> -->
       </div>
     </div>
   </header>

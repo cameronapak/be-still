@@ -36,6 +36,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_CLERK_PUBLISHABLE_KEY: string;
   /** https://clerk.com/docs/deployments/clerk-environment-variables#clerk-environment-variables */
   readonly CLERK_SECRET_KEY: string;
+  /** https://liveblocks.io/ */
+  readonly LIVE_BLOCKS_PUBLIC_API_KEY: string;
 }
 
 interface ImportMeta {

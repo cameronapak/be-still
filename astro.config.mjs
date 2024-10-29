@@ -5,7 +5,7 @@ import netlify from "@astrojs/netlify";
 import sentry from "@sentry/astro";
 import db from "@astrojs/db";
 import webVitals from "@astrojs/web-vitals";
-import clerk from "@clerk/astro";
+// import clerk from "@clerk/astro";
 import { copyTinymceToPublic } from "./src/integrations.ts";
 
 const SENTRY_DSN = import.meta.env.SENTRY_DSN;
@@ -30,7 +30,7 @@ export default defineConfig({
       }),
     webVitals(),
     copyTinymceToPublic(),
-    clerk()
+    // clerk()
   ],
   vite: {
     optimizeDeps: {

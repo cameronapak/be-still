@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Room">
+  <h1>Room</h1>
+  <div id="room">
+  </div>
+</Layout>
+
+<script>
+  import { createClient } from "@liveblocks/client";
+
+  const client = createClient({
+    publicApiKey: "pk_prod_cILfF_g5rtMsjdKvB5bCqssRzGD-uENYUH3FU8MSpPeFiyWK-ussGjQyNqB4fA1i"
+  });
+
+  const { room, leave } = client.enterRoom("prayer-room");
+
+  const div = document.getElementById("room") as HTMLDivElement;
+
+  room.subscribe("others", (others) => {
+    div.innerText = `There are ${others.length} other user(s) online`;
+  });
+</script>
