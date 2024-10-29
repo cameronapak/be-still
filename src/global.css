@@ -33,3 +33,37 @@
 .container {
   max-width: 768px;
 }
+
+body {
+  @apply min-h-screen bg-gradient-to-br from-cyan-700 to-cyan-900;
+}
+
+.animation-gentle-pulse {
+  animation: breath 8s ease-in-out infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+@keyframes breath {
+  0%, 100% {
+    transform: scale(1); /* Rest state */
+  }
+  25% {
+    transform: scale(1.1); /* Inhale */
+  }
+  50% {
+    transform: scale(1.2); /* Full inhale */
+  }
+  75% {
+    transform: scale(1.1); /* Exhale halfway */
+  }
+}
