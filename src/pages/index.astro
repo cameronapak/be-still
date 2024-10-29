@@ -4,13 +4,15 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Room">
-  <main x-data="room" class="text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12">
-    <h1 class="text-white text-opacity-80">Quiet Time Together</h1>
+  <main x-data="room" class="relative text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12">
+    <div class="flex justify-between items-center gap-3">
+      <h1 class="text-white text-opacity-80 m-0 p-0 line-clamp-1">Quiet Time Together</h1>
 
-    <!-- Add Settings Button -->
-    <button class="btn btn-ghost btn-circle absolute top-6 right-6" @click="$refs.settingsModalEl.showModal()">
-      <Icon pack="lucide" name="settings-2" class="h-6 w-6" />
-    </button>
+      <!-- Add Settings Button -->
+      <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
+        <Icon pack="lucide" name="settings-2" class="h-6 w-6" />
+      </button>
+    </div>
 
     <!-- Add Modal -->
     <dialog
@@ -40,9 +42,16 @@ import Layout from "../layouts/Layout.astro";
               @change="updateEmoji()"
               class="select select-bordered w-full bg-white bg-opacity-10"
             >
-              <template x-for="option in emojiOptions" :key="option.value">
-                <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
-              </template>
+              <optgroup label="Spiritual Disciplines">
+                <template x-for="option in emojiOptions.spiritualDisciplines" :key="option.value">
+                  <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
+                </template>
+              </optgroup>
+              <optgroup label="Feelings">
+                <template x-for="option in emojiOptions.feelings" :key="option.value">
+                  <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
+                </template>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -90,22 +99,27 @@ import Layout from "../layouts/Layout.astro";
   document.addEventListener("alpine:init", () => {
     Alpine.data("room", function () {
       return {
-        emojiOptions: [
-          { value: "😌", label: "Content" },
-          { value: "😊", label: "Peaceful" },
-          { value: "🙏", label: "Praying" },
-          { value: "🥺", label: "Seeking" },
-          { value: "😢", label: "Grieving" },
-          { value: "🙌", label: "Praising" },
-          { value: "✨", label: "Blessed" },
-          { value: "🤲", label: "Supplication" },
-          { value: "😇", label: "Grateful" },
-          { value: "🫂", label: "Supporting" },
-          { value: "💭", label: "Reflecting" },
-          { value: "📖", label: "Reading Scripture" },
-          { value: "🎵", label: "Worshiping" },
-          { value: "🕯️", label: "Meditating" }
-        ],
+        emojiOptions: {
+          spiritualDisciplines: [
+            { value: "🙏", label: "Praying" },
+            { value: "📖", label: "Reading Scripture" },
+            { value: "🙌", label: "Praising" },
+            { value: "🤲", label: "Praying for Others" },
+            { value: "💭", label: "Reflecting" },
+            { value: "🎵", label: "Worshiping" },
+            { value: "🕯️", label: "Meditating" },
+            { value: "🧘", label: "Being Still" },
+            { value: "🤗", label: "Practicing Gratitude" }
+          ],
+          feelings: [
+            { value: "😌", label: "Content" },
+            { value: "😊", label: "Peaceful" },
+            { value: "🥺", label: "Seeking" },
+            { value: "😢", label: "Grieving" },
+            { value: "😇", label: "Grateful" },
+            { value: "✨", label: "Blessed" }
+          ]
+        },
         nameError: "",
         async validateName(name: string) {
           if (!name) {
@@ -114,10 +128,10 @@ import Layout from "../layouts/Layout.astro";
           }
 
           try {
-            const response = await fetch('/api/groq.json', {
-              method: 'POST',
+            const response = await fetch("/api/groq.json", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({ name })
             });
@@ -128,7 +142,7 @@ import Layout from "../layouts/Layout.astro";
             }
 
             const data = await response.json();
-            
+
             if (!data.isAppropriate) {
               this.nameError = data.message;
               this.myName = ""; // Clear invalid name
@@ -154,9 +168,17 @@ import Layout from "../layouts/Layout.astro";
         // @ts-ignore
         myName: this.$persist(""),
         getTooltipText(emoji: string, name: string) {
-          let text = this.emojiOptions.find((option) => option.value === emoji)?.label || "You";
-          if (name) {
+          let text =
+            this.emojiOptions.feelings.find((option: { value: string; label: string }) => option.value === emoji)
+              ?.label ||
+            this.emojiOptions.spiritualDisciplines.find(
+              (option: { value: string; label: string }) => option.value === emoji
+            )?.label ||
+            "";
+          if (name && text) {
             text = `${name} is ${text}`;
+          } else if (name && !text) {
+            text = name;
           }
           return text;
         },
