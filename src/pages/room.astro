@@ -8,7 +8,7 @@ import Layout from "../layouts/Layout.astro";
     <h1 class="text-white text-opacity-80">Quiet Time Together</h1>
 
     <!-- Add Settings Button -->
-    <button class="btn btn-ghost btn-circle absolute top-6 right-6" onclick="settings_modal.showModal()">
+    <button class="btn btn-ghost btn-circle absolute top-6 right-6" @click="$refs.settingsModalEl.showModal()">
       <Icon pack="lucide" name="settings-2" class="h-6 w-6" />
     </button>
 
@@ -60,7 +60,9 @@ import Layout from "../layouts/Layout.astro";
         </div>
       </template>
       <div
-        class="avatar-item bg-white bg-opacity-50 rounded-full"
+        @click="$refs.settingsModalEl.showModal()"
+        class="avatar-item bg-white bg-opacity-50 rounded-full cursor-pointer"
+        aria-role="button"
         :style="getPositionStyle(users.length, users.length + 1)"
       >
         <div
@@ -150,12 +152,18 @@ import Layout from "../layouts/Layout.astro";
           });
         },
         getPositionStyle(index: number, total: number) {
+          if (total === 1) {
+            // Center the current user's avatar
+            return '';
+          }
+
           // Adjust radius based on number of participants
           const baseRadius = 130;
-          const radius = baseRadius + (total - 4) * 8; // Increase radius by 20px for each participant beyond 4
+          const radius = baseRadius + (total - 4) * 8; // Increase radius by 8px for each participant beyond 4
           const angle = (2 * Math.PI * index) / total;
-          const x = radius * Math.cos(angle);
-          const y = radius * Math.sin(angle);
+          // Subtract half the avatar size (32px) to center each avatar
+          const x = radius * Math.cos(angle) - 32;
+          const y = radius * Math.sin(angle) - 32;
           return `transform: translate(${x}px, ${y}px);`;
         }
       };
@@ -167,8 +175,9 @@ import Layout from "../layouts/Layout.astro";
   .avatar-circle-container {
     position: relative;
     height: calc(100vh - 256px);
-    width: calc(100vh - 256px);
+    width: 100%;
     margin: 0 auto;
+    overflow: hidden;
   }
 
   .avatar-item {
