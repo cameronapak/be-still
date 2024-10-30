@@ -54,7 +54,8 @@ body {
   }
 }
 @keyframes breath {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1); /* Rest state */
   }
   25% {

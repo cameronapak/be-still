@@ -29,7 +29,7 @@ export default defineConfig({
         project: SENTRY_PROJECT
       }),
     webVitals(),
-    copyTinymceToPublic(),
+    copyTinymceToPublic()
     // clerk()
   ],
   vite: {
@@ -40,6 +40,6 @@ export default defineConfig({
   output: "server",
   adapter: netlify(),
   experimental: {
-    serverIslands: true,
+    serverIslands: true
   }
 });

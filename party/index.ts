@@ -10,12 +10,12 @@ interface User {
 }
 
 interface StateMessage {
-  type: 'state_update';
+  type: "state_update";
   users: User[];
 }
 
 interface PresenceMessage {
-  type: 'presence';
+  type: "presence";
   presence: {
     emoji: string;
     name: string;
@@ -54,8 +54,8 @@ export default class Server implements Party.Server {
   onMessage(message: string, sender: Party.Connection) {
     try {
       const data = JSON.parse(message) as PresenceMessage;
-      
-      if (data.type === 'presence') {
+
+      if (data.type === "presence") {
         const currentUser = this.users.get(sender.id);
         if (currentUser) {
           // Update user's presence
@@ -64,19 +64,19 @@ export default class Server implements Party.Server {
             name: data.presence.name
           };
           this.users.set(sender.id, currentUser);
-          
+
           // Broadcast updated state to all clients
           this.broadcastState();
         }
       }
     } catch (error) {
-      console.error('Error processing message:', error);
+      console.error("Error processing message:", error);
     }
   }
 
   private sendStateToClient(conn: Party.Connection) {
     const stateMessage: StateMessage = {
-      type: 'state_update',
+      type: "state_update",
       users: Array.from(this.users.values())
     };
     conn.send(JSON.stringify(stateMessage));
@@ -84,10 +84,10 @@ export default class Server implements Party.Server {
 
   private broadcastState() {
     const stateMessage: StateMessage = {
-      type: 'state_update',
+      type: "state_update",
       users: Array.from(this.users.values())
     };
-    
+
     // Broadcast state to all connections
     for (const conn of this.room.getConnections()) {
       conn.send(JSON.stringify(stateMessage));

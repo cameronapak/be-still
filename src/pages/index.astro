@@ -203,9 +203,7 @@ import Layout from "../layouts/Layout.astro";
             try {
               const data = JSON.parse(event.data);
               if (data.type === "state_update") {
-                const otherUsers = data.users.filter(
-                  (user: any) => user.connectionId !== socket.id
-                );
+                const otherUsers = data.users.filter((user: any) => user.connectionId !== socket.id);
                 this.setUsers(otherUsers);
               }
             } catch (error) {
