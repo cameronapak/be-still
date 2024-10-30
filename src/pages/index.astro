@@ -112,6 +112,7 @@ import Layout from "../layouts/Layout.astro";
             { value: "🤗", label: "Practicing Gratitude" }
           ],
           feelings: [
+            { value: "👋", label: "Just Arrived" },
             { value: "😌", label: "Content" },
             { value: "😊", label: "Peaceful" },
             { value: "🥺", label: "Seeking" },
@@ -166,7 +167,7 @@ import Layout from "../layouts/Layout.astro";
           (this.$refs.settingsModalEl as HTMLDialogElement).close();
         },
         // @ts-ignore
-        myName: this.$persist(""),
+        myName: this.$persist("") as string,
         getTooltipText(emoji: string, name: string) {
           let text =
             this.emojiOptions.feelings.find((option: { value: string; label: string }) => option.value === emoji)
@@ -212,7 +213,7 @@ import Layout from "../layouts/Layout.astro";
           });
 
           this.socket = socket;
-          this.myPresence = { emoji: "😌", name: "" };
+          this.myPresence = { emoji: "👋", name: "" };
 
           // Send initial presence when connected
           socket.addEventListener("open", () => {
@@ -220,7 +221,7 @@ import Layout from "../layouts/Layout.astro";
           });
         },
         socket: null as PartySocket | null,
-        myPresence: { emoji: "😌", name: "" },
+        myPresence: { emoji: "👋", name: "" },
         updateEmoji() {
           this.sendPresence();
         },
