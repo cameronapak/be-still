@@ -6,7 +6,7 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="Room">
   <main x-data="room" class="relative text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12">
     <div class="flex justify-between items-center gap-3">
-      <h1 class="text-white text-opacity-80 m-0 p-0 line-clamp-1">Quiet Time Together</h1>
+      <h1 x-init="setTimeout(() => $el.classList.add('opacity-30'), 1000)" class="hover:opacity-100 transition-opacity duration-1000 text-white text-opacity-80 m-0 p-0 line-clamp-1">Quiet Time Together</h1>
 
       <!-- Add Settings Button -->
       <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
@@ -83,9 +83,9 @@ import Layout from "../layouts/Layout.astro";
       >
         <div
           class="tooltip tooltip-bottom animation-gentle-pulse"
-          x-bind:data-tip="getTooltipText(myPresence.emoji, myName)"
+          x-bind:data-tip="'(You) ' + getTooltipText(myPresence.emoji, myName)"
         >
-          <div class="emoji-avatar" x-text="myPresence.emoji || '😌'"></div>
+          <div class="emoji-avatar" x-text="myPresence.emoji || '👋'"></div>
         </div>
       </div>
     </div>
@@ -213,7 +213,6 @@ import Layout from "../layouts/Layout.astro";
           });
 
           this.socket = socket;
-          this.myPresence = { emoji: "👋", name: "" };
 
           // Send initial presence when connected
           socket.addEventListener("open", () => {
@@ -229,7 +228,7 @@ import Layout from "../layouts/Layout.astro";
         setUsers(users: any[]) {
           this.users = users;
           const totalParticipants = users.length + 1;
-          const scale = Math.max(1 - (totalParticipants - 4) * 0.1, 0.6);
+          const scale = Math.max(1 - (totalParticipants - 4) * 0.3, 0.6);
           document.documentElement.style.setProperty("--avatar-scale", scale.toString());
         },
         init() {
@@ -268,10 +267,49 @@ import Layout from "../layouts/Layout.astro";
 <style>
   .avatar-circle-container {
     position: relative;
-    height: calc(100vh - 256px);
+    height: calc(100vh - 96px);
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
+  }
+
+  /* Center glowing circle */
+  .avatar-circle-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 256px;
+    height: 256px;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.1) 40%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    border-radius: 50%;
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(0.95);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translate(-50%, -50%) scale(1.05);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.1);
+      opacity: 0.9;
+    }
+    75% {
+      transform: translate(-50%, -50%) scale(1.05);
+      opacity: 0.8;
+    }
   }
 
   .avatar-item {
