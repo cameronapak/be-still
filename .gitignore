@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # TinyMCE self-hosted gets copied on build, so no need to commit.
 public/tinymce/
+
+# Partkit
+.partykit/

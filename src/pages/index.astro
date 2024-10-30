@@ -94,7 +94,7 @@ import Layout from "../layouts/Layout.astro";
 
 <script>
   import Alpine from "alpinejs";
-  import { createClient, type Room } from "@liveblocks/client";
+  import PartySocket from "partysocket";
 
   document.addEventListener("alpine:init", () => {
     Alpine.data("room", function () {
@@ -153,8 +153,8 @@ import Layout from "../layouts/Layout.astro";
           } catch (error) {
             console.error("Name validation error:", error);
             // Fallback to basic validation if API check fails
-            if (name.length < 2 || name.length > 30) {
-              this.nameError = "Name must be between 2 and 30 characters";
+            if (name.length < 2 || name.length > 48) {
+              this.nameError = "Name must be between 2 and 48 characters";
               this.myName = "";
             }
           }
@@ -183,43 +183,55 @@ import Layout from "../layouts/Layout.astro";
           return text;
         },
         setupRoom() {
-          const client = createClient({
-            publicApiKey: "pk_prod_cILfF_g5rtMsjdKvB5bCqssRzGD-uENYUH3FU8MSpPeFiyWK-ussGjQyNqB4fA1i",
-            throttle: 200, //  5 FPS
-            lostConnectionTimeout: 5000,
-            // Disconnect users after 30 minutes of inactivity
-            backgroundKeepAliveTimeout: 30 * 60 * 1000
+          const socket = new PartySocket({
+            host: import.meta.env.DEV ? "localhost:1999" : "https://freedom-stack-party.cameronapak.partykit.dev",
+            room: "prayer-room",
+            party: "main",
+            connectionTimeout: 3600000 // 1 hour in milliseconds
           });
 
-          const { room, leave } = client.enterRoom("prayer-room");
-
-          room.subscribe("others", (others) => {
-            const othersWithPresence = others.filter((user) => user?.presence);
-            this.setUsers(othersWithPresence);
+          socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
           });
 
-          this.room = room;
+          socket.addEventListener("close", (event) => {
+            console.log("WebSocket closed:", event.code, event.reason);
+            setTimeout(() => this.socket?.reconnect(), 3000);
+          });
+
+          socket.addEventListener("message", (event: any) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === "state_update") {
+                const otherUsers = data.users.filter(
+                  (user: any) => user.connectionId !== socket.id
+                );
+                this.setUsers(otherUsers);
+              }
+            } catch (error) {
+              console.error("Error parsing message:", error);
+            }
+          });
+
+          this.socket = socket;
           this.myPresence = { emoji: "😌", name: "" };
-          room.updatePresence({ emoji: "😌", name: "" });
+
+          // Send initial presence when connected
+          socket.addEventListener("open", () => {
+            this.sendPresence();
+          });
         },
-        room: null as Room<any, any, any, any, any> | null,
-        myPresence: { emoji: "😌", name: "" } as { emoji: string; name: string },
+        socket: null as PartySocket | null,
+        myPresence: { emoji: "😌", name: "" },
         updateEmoji() {
-          this.room?.updatePresence({ emoji: this.myPresence.emoji, name: this.myName });
+          this.sendPresence();
         },
         users: [] as any[],
         setUsers(users: any[]) {
           this.users = users;
-          // Calculate scale based on total participants (including current user)
           const totalParticipants = users.length + 1;
           const scale = Math.max(1 - (totalParticipants - 4) * 0.1, 0.6);
-          // Update the CSS custom property
           document.documentElement.style.setProperty("--avatar-scale", scale.toString());
-          this.room?.updatePresence({ emoji: this.myPresence.emoji, name: this.myName });
-
-          this.$watch("myName", (value) => {
-            this.room?.updatePresence({ emoji: this.myPresence.emoji, name: value });
-          });
         },
         init() {
           this.setupRoom();
@@ -238,6 +250,16 @@ import Layout from "../layouts/Layout.astro";
           const x = radius * Math.cos(angle) - 32;
           const y = radius * Math.sin(angle) - 32;
           return `transform: translate(${x}px, ${y}px);`;
+        },
+        sendPresence() {
+          if (this.socket?.readyState === WebSocket.OPEN) {
+            this.socket.send(
+              JSON.stringify({
+                type: "presence",
+                presence: { emoji: this.myPresence.emoji, name: this.myName }
+              })
+            );
+          }
         }
       };
     });
