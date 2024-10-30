@@ -34,8 +34,8 @@
   max-width: 768px;
 }
 
-body {
-  @apply min-h-screen bg-gradient-to-br from-cyan-700 to-cyan-900;
+:root {
+  @apply bg-gradient-to-br from-cyan-700 to-cyan-900 bg-cyan-700;
 }
 
 .animation-gentle-pulse {
