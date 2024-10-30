@@ -3,8 +3,8 @@ import tailwind from "@astrojs/tailwind";
 import alpinejs from "@astrojs/alpinejs";
 import netlify from "@astrojs/netlify";
 import sentry from "@sentry/astro";
-import db from "@astrojs/db";
-import webVitals from "@astrojs/web-vitals";
+// import db from "@astrojs/db";
+// import webVitals from "@astrojs/web-vitals";
 // import clerk from "@clerk/astro";
 import { copyTinymceToPublic } from "./src/integrations.ts";
 
@@ -16,7 +16,7 @@ const isSentryEnabled = SENTRY_DSN && SENTRY_AUTH_TOKEN && SENTRY_PROJECT;
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    db(),
+    // db(),
     tailwind(), // This entrypoint file is where Alpine plugins are registered.
     alpinejs({
       entrypoint: "/src/entrypoint"
@@ -28,15 +28,15 @@ export default defineConfig({
         auth: SENTRY_AUTH_TOKEN,
         project: SENTRY_PROJECT
       }),
-    webVitals(),
+    // webVitals(),
     copyTinymceToPublic()
     // clerk()
   ],
-  vite: {
-    optimizeDeps: {
-      exclude: ["astro:db"]
-    }
-  },
+  // vite: {
+  //   optimizeDeps: {
+  //     exclude: ["astro:db"]
+  //   }
+  // },
   output: "server",
   adapter: netlify(),
   experimental: {

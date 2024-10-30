@@ -1,6 +1,5 @@
 /// <reference types="astro/client" />
 /// <reference types="@clerk/astro/dist/types" />
-/// <reference path="../.astro/db-types.d.ts" />
 /// <reference path="../.astro/types.d.ts" />
 
 import * as htmx from "htmx.org";
@@ -28,14 +27,6 @@ interface ImportMetaEnv {
   readonly SENTRY_AUTH_TOKEN: string;
   /** https://docs.sentry.io/platforms/javascript/guides/astro/#configure */
   readonly SENTRY_PROJECT: string;
-  /** https://docs.astro.build/en/guides/astro-db/#libsql */
-  readonly ASTRO_DB_REMOTE_URL: string;
-  /** https://docs.astro.build/en/guides/astro-db/#libsql */
-  readonly ASTRO_DB_APP_TOKEN: string;
-  /** https://clerk.com/docs/deployments/clerk-environment-variables#clerk-environment-variables */
-  readonly PUBLIC_CLERK_PUBLISHABLE_KEY: string;
-  /** https://clerk.com/docs/deployments/clerk-environment-variables#clerk-environment-variables */
-  readonly CLERK_SECRET_KEY: string;
   /** https://groq.com/ */
   readonly GROQ_API_KEY: string;
 }
