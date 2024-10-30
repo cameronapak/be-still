@@ -1,21 +1,19 @@
 {
-  "name": "freedom-stack",
+  "name": "be-still",
   "type": "module",
-  "version": "1.0.2",
+  "version": "0.0.1",
   "scripts": {
     "dev": "concurrently \"astro dev\" \"partykit dev\"",
     "dev:host": "concurrently \"astro dev --host\" \"partykit dev\"",
     "update-packages": "npx npm-check-updates -u",
-    "start": "astro dev",
     "build": "astro check && astro build --remote",
     "preview": "astro preview",
-    "db-update-schemas": "astro db push --remote",
-    "db-login": "astro login",
-    "db-push": "astro db push",
-    "format": "prettier -w .",
+    "db:push": "astro db push --remote",
+    "db:login": "astro login",
     "partykit:deploy": "partykit deploy",
     "partykit:login": "partykit login",
-    "partykit:dev": "partykit dev"
+    "partykit:dev": "partykit dev",
+    "format": "prettier -w ."
   },
   "dependencies": {
     "@alpinejs/collapse": "^3.14.3",
