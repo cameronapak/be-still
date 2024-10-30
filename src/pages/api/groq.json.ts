@@ -66,21 +66,25 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       apiKey: import.meta.env.GROQ_API_KEY
     });
 
-    const { name } = await request.json();
+    const { name, userPrompt, systemPrompt } = await request.json();
 
     if (!name) {
       return new Response(JSON.stringify({ error: "Name is required" }), { status: 400 });
+    }
+
+    if (!userPrompt || !systemPrompt) {
+      return new Response(JSON.stringify({ error: "User and system prompts are required" }), { status: 400 });
     }
 
     const response = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `You are a helpful assistant that validates names to see if they're safe for public display. Only respond with "yes" or "no"`
+          content: systemPrompt
         },
         {
           role: "user",
-          content: `Is this name valid and appropriate for a prayer room? Only respond with "yes" or "no": ${name}`
+          content: userPrompt
         }
       ],
       model: "llama3-8b-8192"

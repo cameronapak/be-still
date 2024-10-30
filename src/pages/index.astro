@@ -6,7 +6,12 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="Room">
   <main x-data="room" class="relative text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12">
     <div class="flex justify-between items-center gap-3">
-      <h1 x-init="setTimeout(() => $el.classList.add('opacity-30'), 1000)" class="hover:opacity-100 transition-opacity duration-1000 text-white text-opacity-80 m-0 p-0 line-clamp-1">Quiet Time Together</h1>
+      <h1
+        x-init="setTimeout(() => $el.classList.add('opacity-30'), 1000)"
+        class="hover:opacity-100 transition-opacity duration-1000 text-white text-opacity-80 m-0 p-0 line-clamp-1"
+      >
+        Quiet Time Together
+      </h1>
 
       <!-- Add Settings Button -->
       <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
@@ -22,7 +27,7 @@ import Layout from "../layouts/Layout.astro";
       class="modal modal-bottom sm:modal-middle"
     >
       <div class="modal-box bg-cyan-900">
-        <h3 class="font-bold text-xl mb-4 text-white">Welcome here! 👋</h3>
+        <h3 class="font-bold text-xl mb-4 text-white">Welcome! 👋</h3>
         <div class="space-y-4 mt-4">
           <div>
             <label class="block mb-2">What's your name?</label>
@@ -42,6 +47,7 @@ import Layout from "../layouts/Layout.astro";
               @change="updateEmoji()"
               class="select select-bordered w-full bg-white bg-opacity-10"
             >
+              <option value="">-</option>
               <optgroup label="Spiritual Disciplines">
                 <template x-for="option in emojiOptions.spiritualDisciplines" :key="option.value">
                   <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
@@ -56,10 +62,10 @@ import Layout from "../layouts/Layout.astro";
           </div>
         </div>
         <div class="modal-action">
-          <button class="btn" @click="startQuietTime()">Start Quiet Time</button>
+          <button x-bind:disabled="!isNameAppropriate" class="btn" @click="startQuietTime()">Start Quiet Time</button>
         </div>
       </div>
-      <form method="dialog" class="modal-backdrop">
+      <form x-bind:disabled="!isNameAppropriate" method="dialog" class="modal-backdrop">
         <button>close</button>
       </form>
     </dialog>
@@ -122,9 +128,12 @@ import Layout from "../layouts/Layout.astro";
           ]
         },
         nameError: "",
+        // @ts-ignore - this.$persist is not typed
+        isNameAppropriate: this.$persist(false) as boolean,
         async validateName(name: string) {
           if (!name) {
             this.nameError = "";
+            this.isNameAppropriate = false;
             return;
           }
 
@@ -134,11 +143,16 @@ import Layout from "../layouts/Layout.astro";
               headers: {
                 "Content-Type": "application/json"
               },
-              body: JSON.stringify({ name })
+              body: JSON.stringify({
+                name,
+                userPrompt: `Is this name valid and appropriate for a prayer room? Only respond with 'yes' or 'no': ${name}`,
+                systemPrompt: `You are a helpful assistant that validates names to see if they're safe for public display. Only respond with "yes" or "no"`
+              })
             });
 
             if (response.status === 429) {
               this.nameError = "Too many requests. Please try again later.";
+              this.isNameAppropriate = false;
               return;
             }
 
@@ -147,9 +161,11 @@ import Layout from "../layouts/Layout.astro";
             if (!data.isAppropriate) {
               this.nameError = data.message;
               this.myName = ""; // Clear invalid name
+              this.isNameAppropriate = false;
             } else {
               this.nameError = "";
               this.myName = name;
+              this.isNameAppropriate = true;
             }
           } catch (error) {
             console.error("Name validation error:", error);
@@ -233,11 +249,15 @@ import Layout from "../layouts/Layout.astro";
         },
         init() {
           this.setupRoom();
+
+          if (this.myName && !this.isNameAppropriate) {
+            this.validateName(this.myName);
+          }
         },
         getPositionStyle(index: number, total: number) {
           if (total === 1) {
             // Center the current user's avatar
-            return "";
+            return "transform: translate(-32px, -32px);";
           }
 
           // Adjust radius based on number of participants
@@ -275,7 +295,7 @@ import Layout from "../layouts/Layout.astro";
 
   /* Center glowing circle */
   .avatar-circle-container::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
