@@ -1,5 +1,7 @@
 # Be Still, by faith.tools
 
+A digital prayer room experience, inspired by prayer rooms, Prayroom app, and Salt + Light app.
+
 ## Things to know
 
 - Created via the Astro-based [Freedom Stack](https://github.com/cameronapak/freedom-stack) boilerplate. Visit that boilerplate for more information on how to use it and how to use this project.
