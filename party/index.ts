@@ -6,8 +6,8 @@ interface User {
     emoji: string;
     name: string;
     countryFlag: string;
+    joinedAt: number;
   };
-  joinedAt: number;
 }
 
 interface StateMessage {
@@ -21,6 +21,7 @@ interface PresenceMessage {
     emoji: string;
     name: string;
     countryFlag: string;
+    joinedAt: number;
   };
 }
 
@@ -38,9 +39,9 @@ export default class Server implements Party.Server {
       presence: {
         emoji: "😌",
         name: "",
-        countryFlag: "🌎"
+        countryFlag: "🌎",
+        joinedAt: new Date().getTime(),
       },
-      joinedAt: Date.now()
     });
 
     // Send current state to the new connection
@@ -65,7 +66,8 @@ export default class Server implements Party.Server {
           currentUser.presence = {
             emoji: data.presence.emoji,
             name: data.presence.name,
-            countryFlag: data.presence.countryFlag
+            countryFlag: data.presence.countryFlag,
+            joinedAt: data.presence.joinedAt || currentUser.presence.joinedAt,
           };
           this.users.set(sender.id, currentUser);
 

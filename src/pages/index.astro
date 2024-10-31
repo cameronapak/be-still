@@ -125,6 +125,12 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
           >
             <div class="emoji-avatar" x-text="user.presence.emoji || '😌'"></div>
             <span x-text="user.presence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
+            <span
+              x-show="user.timeElapsed"
+              class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
+              x-text="user.timeElapsed"
+              x-cloak
+            ></span>
           </div>
         </div>
       </template>
@@ -141,6 +147,12 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         >
           <div class="emoji-avatar" x-text="myPresence.emoji || '😌'"></div>
           <span x-text="myPresence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
+          <span
+            x-show="myPresence.joinedAt && timeElapsed"
+            class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
+            x-text="timeElapsed"
+            x-cloak
+          ></span>
         </div>
       </div>
     </div>
@@ -175,7 +187,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             { value: "🤗", label: "Practicing Gratitude" }
           ],
           feelings: [
-            { value: "", label: "Content" },
+            { value: "😌", label: "Content" },
             { value: "😊", label: "Peaceful" },
             { value: "🥺", label: "Seeking" },
             { value: "😢", label: "Grieving" },
@@ -308,7 +320,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         },
         // @ts-ignore
         myName: this.$persist("") as string,
-        myPresence: { emoji: "😌", name: "", countryFlag: "🌎" },
+        myPresence: { emoji: "😌", name: "", countryFlag: "🌎", joinedAt: new Date().getTime() },
         updateEmoji() {
           this.sendPresence();
         },
@@ -319,6 +331,32 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
           const scale = Math.max(1 - (totalParticipants - 4) * 0.3, 0.6);
           document.documentElement.style.setProperty("--avatar-scale", scale.toString());
         },
+        timeElapsed: "",
+        updateTimeElapsed() {
+          // Update my time elapsed
+          if (!this.myPresence.joinedAt) {
+            this.timeElapsed = "";
+            return;
+          }
+          const mins = Math.floor((Date.now() - this.myPresence.joinedAt) / 60000);
+          if (mins === 0) {
+            this.timeElapsed = "";
+          } else {
+            this.timeElapsed = mins + "m";
+          }
+
+          // Update other users' time elapsed
+          this.users = this.users.map((user: any) => {
+            const timeElapsed = user.presence.joinedAt
+              ? Math.floor((Date.now() - user.presence.joinedAt) / 60000)
+              : 0;
+            return {
+              ...user,
+              timeElapsed: timeElapsed ? timeElapsed + "m" : ""
+            };
+          });
+        },
+        timeElapsedInterval: null as NodeJS.Timeout | null,
         async init() {
           this.setupRoom();
           await this.detectCountry();
@@ -328,6 +366,10 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
           }
 
           this.setUpAudioProgressInterval();
+          
+          // Set up time elapsed interval
+          this.updateTimeElapsed();
+          this.timeElapsedInterval = setInterval(() => this.updateTimeElapsed(), 1000); // Update every second
         },
         async detectCountry() {
           try {
@@ -417,7 +459,8 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
                 presence: {
                   emoji: this.myPresence.emoji,
                   name: this.myName,
-                  countryFlag: this.myPresence.countryFlag
+                  countryFlag: this.myPresence.countryFlag,
+                  joinedAt: this.myPresence.joinedAt
                 }
               })
             );
