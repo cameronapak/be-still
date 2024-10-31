@@ -11,13 +11,20 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
 
 <Layout title="Room">
   <main x-data="room" class="relative text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12">
-    <div class="flex justify-between items-center gap-3">
+    <div class="grid grid-cols-[1fr_auto_auto] items-center gap-3">
       <div class="flex flex-col gap-0">
         <h1 class="text-white text-opacity-80 text-[42px] !m-0 p-0 line-clamp-1">Be Still</h1>
         <span class="text-xs">a <a class="text-inherit" href="https://faith.tools">faith.tools</a> experiment</span>
       </div>
 
-      <!-- Add Settings Button -->
+      <button 
+        class="btn btn-ghost btn-circle" 
+        @click="toggleMusic()"
+      >
+        <Icon pack="lucide" name="music" class="h-6 w-6" x-show="!isAudioPlaying" />
+        <Icon pack="lucide" name="pause" class="h-6 w-6" x-show="isAudioPlaying" x-cloak />
+      </button>
+
       <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
         <Icon pack="lucide" name="settings-2" class="h-6 w-6" />
       </button>
@@ -170,6 +177,31 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             { value: "😇", label: "Grateful" },
             { value: "✨", label: "Blessed" }
           ]
+        },
+        audio: null as HTMLAudioElement | null,
+        get isAudioPlaying() {
+          if (!this.audio) {
+            return false;
+          }
+
+          if (this.audio.paused) {
+            return false;
+          }
+
+          return true;
+        },
+        toggleMusic() {
+          if (this.audio) {
+            if (this.audio.paused) {
+              this.audio.play();
+            } else {
+              this.audio.pause();
+            }
+          } else {
+            this.audio = new Audio('https://soulrest.b-cdn.net/rest.mp3');
+            this.audio.preload = 'none';
+            this.audio.play();
+          }
         },
         nameError: "",
         // @ts-ignore - this.$persist is not typed
