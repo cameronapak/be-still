@@ -17,12 +17,17 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         <span class="text-xs">a <a class="text-inherit" href="https://faith.tools">faith.tools</a> experiment</span>
       </div>
 
-      <button 
-        class="btn btn-ghost btn-circle" 
-        @click="toggleMusic()"
-      >
-        <Icon pack="lucide" name="music" class="h-6 w-6" x-show="!isAudioPlaying" />
-        <Icon pack="lucide" name="pause" class="h-6 w-6" x-show="isAudioPlaying" x-cloak />
+      <button class="btn btn-ghost btn-circle relative group" @click="toggleMusic()">
+        <div
+          x-ref="radialProgressEl"
+          x-show="isPlaying"
+          x-cloak
+          class="radial-progress absolute inset-0 top-0 left-0 right-0 bottom-0"
+          style="--value: 0; --size: 48px; --thickness: 4px"
+        >
+        </div>
+        <Icon pack="lucide" name="music" class="h-6 w-6" x-show="!isPlaying" />
+        <Icon pack="lucide" name="pause" class="h-6 w-6" x-show="isPlaying" x-cloak />
       </button>
 
       <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
@@ -178,8 +183,64 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             { value: "✨", label: "Blessed" }
           ]
         },
+        toggleMusic() {
+          if (this.audio) {
+            if (this.audio.paused) {
+              this.audio.play();
+            } else {
+              this.audio.pause();
+            }
+          } else {
+            this.audio = new Audio("https://soulrest.b-cdn.net/rest.mp3");
+            this.audio.preload = "none";
+            this.audio.play();
+          }
+          this.setUpAudioProgressInterval();
+          this.hasClickedPlay = true;
+        },
+        hasClickedPlay: false,
+        goForwards15Seconds() {
+          if (this.audio?.currentTime) {
+            this.audio.currentTime += 15;
+          }
+        },
+        goBackwards15Seconds() {
+          if (this.audio?.currentTime) {
+            this.audio.currentTime -= 15;
+          }
+        },
+        updateAudioProgress() {
+          if (!this.audio) {
+            return;
+          }
+
+          const percentage = Math.floor((this.audio.currentTime / this.audio.duration) * 100) || 0;
+          this.$refs.radialProgressEl.style.setProperty("--value", percentage.toString());
+          if (percentage === 100) {
+            this.tearDownAudioProgressInterval();
+          }
+        },
+        remainingTime() {
+          if (!this.audio) {
+            return;
+          }
+
+          return Math.floor(this.audio.duration - this.audio.currentTime);
+        },
+        setUpAudioProgressInterval() {
+          if (!this.audioProgressInterval) {
+            this.audioProgressInterval = setInterval(this.updateAudioProgress, 500);
+          }
+        },
+        tearDownAudioProgressInterval() {
+          if (this.audioProgressInterval) {
+            clearInterval(this.audioProgressInterval);
+            this.audioProgressInterval = null;
+          }
+        },
+        audioProgressInterval: null as NodeJS.Timeout | null,
         audio: null as HTMLAudioElement | null,
-        get isAudioPlaying() {
+        get isPlaying() {
           if (!this.audio) {
             return false;
           }
@@ -189,19 +250,6 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
           }
 
           return true;
-        },
-        toggleMusic() {
-          if (this.audio) {
-            if (this.audio.paused) {
-              this.audio.play();
-            } else {
-              this.audio.pause();
-            }
-          } else {
-            this.audio = new Audio('https://soulrest.b-cdn.net/rest.mp3');
-            this.audio.preload = 'none';
-            this.audio.play();
-          }
         },
         nameError: "",
         // @ts-ignore - this.$persist is not typed
@@ -278,6 +326,8 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
           if (this.myName && !this.isNameAppropriate) {
             this.validateName(this.myName);
           }
+
+          this.setUpAudioProgressInterval();
         },
         async detectCountry() {
           try {
@@ -445,5 +495,11 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
   /* Add this new CSS to scale avatars based on participant count */
   [x-data="room"] {
     --avatar-scale: 1;
+  }
+
+  @keyframes progress {
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 </style>
