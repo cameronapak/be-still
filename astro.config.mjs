@@ -26,7 +26,7 @@ export default defineConfig({
         dsn: SENTRY_DSN,
         auth: SENTRY_AUTH_TOKEN,
         project: SENTRY_PROJECT
-      }),
+      })
     // webVitals(),
     // clerk()
   ],

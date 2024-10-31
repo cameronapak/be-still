@@ -8,6 +8,6 @@
 - If you make changes to the Partykit backend, you will need to redeploy it.
 - I think it can handle 100 concurrent connections, but I haven't tested it.
 
-## Questions? 
+## Questions?
 
 Feel free to reach out to me on [X](https://x.com/cameronpak) if you have any questions!
