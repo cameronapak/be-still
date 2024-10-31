@@ -28,7 +28,6 @@ export default defineConfig({
         project: SENTRY_PROJECT
       }),
     // webVitals(),
-    copyTinymceToPublic()
     // clerk()
   ],
   // vite: {
