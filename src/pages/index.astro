@@ -129,8 +129,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
               x-show="user.timeElapsed"
               class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
               x-text="user.timeElapsed"
-              x-cloak
-            ></span>
+              x-cloak></span>
           </div>
         </div>
       </template>
@@ -151,8 +150,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             x-show="myPresence.joinedAt && timeElapsed"
             class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
             x-text="timeElapsed"
-            x-cloak
-          ></span>
+            x-cloak></span>
         </div>
       </div>
     </div>
@@ -204,10 +202,9 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             }
           } else {
             this.audio = new Audio("https://soulrest.b-cdn.net/rest.mp3");
-            this.audio.preload = "none";
+            this.audio.preload = "auto";
             this.audio.play();
           }
-          this.setUpAudioProgressInterval();
           this.hasClickedPlay = true;
         },
         hasClickedPlay: false,
@@ -223,11 +220,18 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         },
         updateAudioProgress() {
           if (!this.audio) {
+            console.warn("Audio element missing in updateAudioProgress");
+            return;
+          }
+          
+          if (!this.$refs.radialProgressEl) {
+            console.warn("Progress element ref missing");
             return;
           }
 
           const percentage = Math.floor((this.audio.currentTime / this.audio.duration) * 100) || 0;
           this.$refs.radialProgressEl.style.setProperty("--value", percentage.toString());
+
           if (percentage === 100) {
             this.tearDownAudioProgressInterval();
           }
@@ -241,7 +245,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         },
         setUpAudioProgressInterval() {
           if (!this.audioProgressInterval) {
-            this.audioProgressInterval = setInterval(this.updateAudioProgress, 500);
+            this.audioProgressInterval = setInterval(() => this.updateAudioProgress(), 500);
           }
         },
         tearDownAudioProgressInterval() {
@@ -347,9 +351,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
 
           // Update other users' time elapsed
           this.users = this.users.map((user: any) => {
-            const timeElapsed = user.presence.joinedAt
-              ? Math.floor((Date.now() - user.presence.joinedAt) / 60000)
-              : 0;
+            const timeElapsed = user.presence.joinedAt ? Math.floor((Date.now() - user.presence.joinedAt) / 60000) : 0;
             return {
               ...user,
               timeElapsed: timeElapsed ? timeElapsed + "m" : ""
@@ -365,8 +367,14 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             this.validateName(this.myName);
           }
 
-          this.setUpAudioProgressInterval();
-          
+          this.$watch("isPlaying", (isPlaying) => {
+            if (!isPlaying) {
+              this.tearDownAudioProgressInterval();
+            } else {
+              this.setUpAudioProgressInterval();
+            }
+          });
+
           // Set up time elapsed interval
           this.updateTimeElapsed();
           this.timeElapsedInterval = setInterval(() => this.updateTimeElapsed(), 1000); // Update every second
