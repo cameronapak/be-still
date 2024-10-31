@@ -67,6 +67,36 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
               </optgroup>
             </select>
           </div>
+          <div class="form-control w-full">
+            <label class="block mb-2">What country are you in?</label>
+            <select x-model="myPresence.countryFlag" class="select select-bordered w-full bg-white bg-opacity-10">
+              <option value="🌎">🌎 Global</option>
+              <option value="🇺🇸">🇺🇸 United States</option>
+              <option value="🇨🇦">🇨🇦 Canada</option>
+              <option value="🇲🇽">🇲🇽 Mexico</option>
+              <option value="🇧🇷">🇧🇷 Brazil</option>
+              <option value="🇬🇧">🇬🇧 United Kingdom</option>
+              <option value="🇫🇷">🇫🇷 France</option>
+              <option value="🇩🇪">🇩🇪 Germany</option>
+              <option value="🇮🇳">🇮🇳 India</option>
+              <option value="🇯🇵">🇯🇵 Japan</option>
+              <option value="🇰🇷">🇰🇷 South Korea</option>
+              <option value="🇨🇳">🇨🇳 China</option>
+              <option value="🇦🇺">🇦🇺 Australia</option>
+              <option value="🇳🇿">🇳🇿 New Zealand</option>
+              <option value="🇿🇦">🇿🇦 South Africa</option>
+              <option value="🇮🇹">🇮🇹 Italy</option>
+              <option value="🇪🇸">🇪🇸 Spain</option>
+              <option value="🇵🇭">🇵🇭 Philippines</option>
+              <option value="🇸🇬">🇸🇬 Singapore</option>
+              <option value="🇮🇩">🇮🇩 Indonesia</option>
+              <option value="🇳🇱">🇳🇱 Netherlands</option>
+              <option value="🇮🇪">🇮🇪 Ireland</option>
+              <option value="🇸🇪">🇸🇪 Sweden</option>
+              <option value="🇳🇴">🇳🇴 Norway</option>
+              <option value="🇩🇰">🇩🇰 Denmark</option>
+            </select>
+          </div>
         </div>
         <div class="modal-action">
           <button x-bind:disabled="!isNameAppropriate" class="btn" @click="startQuietTime()">Join</button>
@@ -129,7 +159,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             { value: "🤗", label: "Practicing Gratitude" }
           ],
           feelings: [
-            { value: "😌", label: "Content" },
+            { value: "���", label: "Content" },
             { value: "😊", label: "Peaceful" },
             { value: "🥺", label: "Seeking" },
             { value: "😢", label: "Grieving" },
