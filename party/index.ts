@@ -5,6 +5,7 @@ interface User {
   presence: {
     emoji: string;
     name: string;
+    countryFlag: string;
   };
   joinedAt: number;
 }
@@ -19,6 +20,7 @@ interface PresenceMessage {
   presence: {
     emoji: string;
     name: string;
+    countryFlag: string;
   };
 }
 
@@ -35,7 +37,8 @@ export default class Server implements Party.Server {
       connectionId: conn.id,
       presence: {
         emoji: "😌",
-        name: ""
+        name: "",
+        countryFlag: "🌎"
       },
       joinedAt: Date.now()
     });
@@ -61,7 +64,8 @@ export default class Server implements Party.Server {
           // Update user's presence
           currentUser.presence = {
             emoji: data.presence.emoji,
-            name: data.presence.name
+            name: data.presence.name,
+            countryFlag: data.presence.countryFlag
           };
           this.users.set(sender.id, currentUser);
 
