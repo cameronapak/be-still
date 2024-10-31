@@ -111,13 +111,11 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
       <template x-for="(user, index) in users" :key="user.connectionId">
         <div class="avatar-item" :style="getPositionStyle(index, users.length + 1)">
           <div
-            class="tooltip tooltip-bottom animation-gentle-pulse"
-            x-bind:data-tip="getTooltipText(user.presence.emoji, user.presence.name, user.presence.countryFlag)"
+            class="tooltip tooltip-top animation-gentle-pulse"
+            x-bind:data-tip="getTooltipText(user.presence.emoji, user.presence.name)"
           >
-            <div class="emoji-avatar">
-              <div class="emoji-avatar" x-text="user.presence.emoji || '😌'"></div>
-              <span x-text="user.presence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
-            </div>
+            <div class="emoji-avatar" x-text="user.presence.emoji || '😌'"></div>
+            <span x-text="user.presence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
           </div>
         </div>
       </template>
@@ -128,8 +126,9 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
         :style="getPositionStyle(users.length, users.length + 1)"
       >
         <div
-          class="tooltip tooltip-bottom animation-gentle-pulse"
-          x-bind:data-tip="'(You) ' + getTooltipText(myPresence.emoji, myName, myPresence.countryFlag)"
+          class="tooltip tooltip-bottom tooltip-open animation-gentle-pulse"
+          x-init="setTimeout(() => $el.classList.remove('tooltip-open'), 5000)"
+          x-bind:data-tip="'(You) ' + getTooltipText(myPresence.emoji, myName)"
         >
           <div class="emoji-avatar" x-text="myPresence.emoji || '😌'"></div>
           <span x-text="myPresence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
@@ -159,7 +158,7 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             { value: "🤗", label: "Practicing Gratitude" }
           ],
           feelings: [
-            { value: "���", label: "Content" },
+            { value: "", label: "Content" },
             { value: "😊", label: "Peaceful" },
             { value: "🥺", label: "Seeking" },
             { value: "😢", label: "Grieving" },
@@ -259,15 +258,15 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
             this.myPresence.countryFlag = "🌎";
           }
         },
-        getTooltipText(emoji: string, name: string, countryFlag: string) {
+        getTooltipText(emoji: string, name: string) {
           let text =
             this.emojiOptions.feelings.find((option) => option.value === emoji)?.label ||
             this.emojiOptions.spiritualDisciplines.find((option) => option.value === emoji)?.label ||
             "";
           if (name && text) {
-            text = `${name} is ${text} (${countryFlag})`;
+            text = `${name} is ${text}`;
           } else if (name && !text) {
-            text = `${name} (${countryFlag})`;
+            text = name;
           }
           return text;
         },
