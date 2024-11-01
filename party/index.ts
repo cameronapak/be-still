@@ -2,6 +2,7 @@ import type * as Party from "partykit/server";
 
 interface User {
   connectionId: string;
+  isHost: boolean;
   presence: {
     emoji: string;
     name: string;
@@ -17,6 +18,7 @@ interface StateMessage {
 
 interface PresenceMessage {
   type: "presence";
+  isHost?: boolean;
   presence: {
     emoji: string;
     name: string;
@@ -33,9 +35,11 @@ export default class Server implements Party.Server {
   }
 
   onConnect(conn: Party.Connection) {
-    // Add user with default state
+    const isHost = this.users.size === 0;
+    
     this.users.set(conn.id, {
       connectionId: conn.id,
+      isHost,
       presence: {
         emoji: "😌",
         name: "",
@@ -44,14 +48,24 @@ export default class Server implements Party.Server {
       },
     });
 
-    // Send current state to the new connection
     this.sendStateToClient(conn);
   }
 
   onClose(conn: Party.Connection) {
-    // Remove user when they disconnect
+    const user = this.users.get(conn.id);
+    
+    if (user?.isHost) {
+      const closeMessage = {
+        type: "room_closed",
+        message: "Host has left the room"
+      };
+      
+      for (const connection of this.room.getConnections()) {
+        connection.send(JSON.stringify(closeMessage));
+      }
+    }
+    
     this.users.delete(conn.id);
-    // Broadcast updated state to all remaining clients
     this.broadcastState();
   }
 
@@ -62,7 +76,6 @@ export default class Server implements Party.Server {
       if (data.type === "presence") {
         const currentUser = this.users.get(sender.id);
         if (currentUser) {
-          // Update user's presence
           currentUser.presence = {
             emoji: data.presence.emoji,
             name: data.presence.name,
@@ -71,7 +84,6 @@ export default class Server implements Party.Server {
           };
           this.users.set(sender.id, currentUser);
 
-          // Broadcast updated state to all clients
           this.broadcastState();
         }
       }
@@ -94,7 +106,6 @@ export default class Server implements Party.Server {
       users: Array.from(this.users.values())
     };
 
-    // Broadcast state to all connections
     for (const conn of this.room.getConnections()) {
       conn.send(JSON.stringify(stateMessage));
     }

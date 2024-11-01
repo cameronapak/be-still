@@ -1,0 +1,534 @@
+---
+import Icon from "astro-iconify";
+
+interface Props {
+  roomId?: string;
+  allowCreateRoom?: boolean;
+}
+
+const { roomId = "prayer-room", allowCreateRoom = false } = Astro.props as Props;
+
+let welcomeText = "Welcome to the global prayer room! 🌍";
+
+if (roomId !== "prayer-room") {
+  welcomeText = `Welcome to your prayer room! 😌`;
+}
+---
+
+<main
+  x-init={`roomId = \`${roomId}\``}
+  x-data="room"
+  class="relative text-white text-opacity-80 h-full min-h-screen container max-w-md mx-auto py-12"
+>
+  <div class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
+    <div class="flex flex-col gap-0">
+      <h1 class="text-white text-opacity-80 text-[42px] !m-0 p-0 line-clamp-1">Be Still</h1>
+      <span class="text-xs">a <a class="text-inherit" href="https://faith.tools">faith.tools</a> experiment</span>
+    </div>
+
+    <button class="btn btn-primary bg-cyan-100 text-cyan-900 hover:bg-cyan-100/80 btn-circle" @click="shareRoomId()">
+      <Icon pack="lucide" name="share" class="h-6 w-6" />
+    </button>
+
+    <button class="btn btn-ghost btn-circle relative group" @click="toggleMusic()">
+      <div
+        x-ref="radialProgressEl"
+        x-show="isPlaying"
+        x-cloak
+        class="radial-progress absolute inset-0 top-0 left-0 right-0 bottom-0"
+        style="--value: 0; --size: 48px; --thickness: 4px"
+      >
+      </div>
+      <Icon pack="lucide" name="music" class="h-6 w-6" x-show="!isPlaying" />
+      <Icon pack="lucide" name="pause" class="h-6 w-6" x-show="isPlaying" x-cloak />
+    </button>
+
+    <button class="btn btn-ghost btn-circle" @click="$refs.settingsModalEl.showModal()">
+      <Icon pack="lucide" name="settings-2" class="h-6 w-6" />
+    </button>
+  </div>
+
+  <!-- Add Modal -->
+  <dialog
+    id="settingsModal"
+    x-ref="settingsModalEl"
+    x-init="$el.showModal()"
+    class="modal modal-bottom sm:modal-middle"
+  >
+    <div class="modal-box bg-cyan-900">
+      <h3 class="font-bold text-xl mb-4 text-white">{welcomeText}</h3>
+      <div class="space-y-4 mt-4">
+        <div>
+          <label class="block mb-2">What's your name?</label>
+          <input
+            type="text"
+            x-init="$el.value = myName || ''"
+            @input.debounce.500ms="validateName($el.value)"
+            :class="{'input-error': nameError}"
+            class="input input-bordered w-full bg-white bg-opacity-10"
+          />
+          <div x-show="nameError" class="text-error text-sm mt-1" x-text="nameError"></div>
+        </div>
+        <div>
+          <label class="block mb-2">How are you showing up today?</label>
+          <select
+            x-model="myPresence.emoji"
+            @change="updateEmoji()"
+            class="select select-bordered w-full bg-white bg-opacity-10"
+          >
+            <option value="">-</option>
+            <optgroup label="Spiritual Disciplines">
+              <template x-for="option in emojiOptions.spiritualDisciplines" :key="option.value">
+                <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
+              </template>
+            </optgroup>
+            <optgroup label="Feelings">
+              <template x-for="option in emojiOptions.feelings" :key="option.value">
+                <option :value="option.value" x-text="`${option.value} ${option.label}`"></option>
+              </template>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-control w-full">
+          <label class="block mb-2">What country are you in?</label>
+          <select x-model="myPresence.countryFlag" class="select select-bordered w-full bg-white bg-opacity-10">
+            <option value="🌎">🌎 Global</option>
+            <option value="🇺🇸">🇺🇸 United States</option>
+            <option value="🇨🇦">🇨🇦 Canada</option>
+            <option value="🇲🇽">🇲🇽 Mexico</option>
+            <option value="🇧🇷">🇧🇷 Brazil</option>
+            <option value="🇬🇧">🇬🇧 United Kingdom</option>
+            <option value="🇫🇷">🇫🇷 France</option>
+            <option value="🇩🇪">🇩🇪 Germany</option>
+            <option value="🇮🇳">🇮🇳 India</option>
+            <option value="🇯🇵">🇯🇵 Japan</option>
+            <option value="🇰🇷">🇰🇷 South Korea</option>
+            <option value="🇨🇳">🇨🇳 China</option>
+            <option value="🇦🇺">🇦🇺 Australia</option>
+            <option value="🇳🇿">🇳🇿 New Zealand</option>
+            <option value="🇿🇦">🇿🇦 South Africa</option>
+            <option value="🇮🇹">🇮🇹 Italy</option>
+            <option value="🇪🇸">🇪🇸 Spain</option>
+            <option value="🇵🇭">🇵🇭 Philippines</option>
+            <option value="🇸🇬">🇸🇬 Singapore</option>
+            <option value="🇮🇩">🇮🇩 Indonesia</option>
+            <option value="🇳🇱">🇳🇱 Netherlands</option>
+            <option value="🇮🇪">🇮🇪 Ireland</option>
+            <option value="🇸🇪">🇸🇪 Sweden</option>
+            <option value="🇳🇴">🇳🇴 Norway</option>
+            <option value="🇩🇰">🇩🇰 Denmark</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-action justify-between">
+        {
+          allowCreateRoom ? (
+            <button
+              class="btn btn-outline border-2 text-cyan-100 text-opacity-80 border-cyan-100/10 hover:border-cyan-100/40 hover:bg-cyan-100/10 disabled:text-cyan-100 disabled:text-opacity-50 disabled:border-cyan-100/50 disabled:hover:border-cyan-100/50 disabled:hover:bg-transparent"
+              @click.prevent.once="createRoom(); $el.disabled = true; $el.innerText = 'Creating...';"
+            >
+              Create Private Room
+            </button>
+          ) : null
+        }
+        <button x-bind:disabled="!isNameAppropriate" class="btn" @click="startQuietTime()">Join Room</button>
+      </div>
+    </div>
+    <form x-bind:disabled="!isNameAppropriate" method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <div class="avatar-circle-container" id="avatar-container">
+    <template x-for="(user, index) in users" :key="user.connectionId">
+      <div class="avatar-item" :style="getPositionStyle(index, users.length + 1)">
+        <div
+          class="tooltip tooltip-top animation-gentle-pulse"
+          x-bind:data-tip="getTooltipText(user.presence.emoji, user.presence.name)"
+        >
+          <div class="emoji-avatar" x-text="user.presence.emoji || '😌'"></div>
+          <span x-text="user.presence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
+          <span
+            x-show="user.timeElapsed"
+            class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
+            x-text="user.timeElapsed"
+            x-cloak></span>
+        </div>
+      </div>
+    </template>
+    <div
+      @click="$refs.settingsModalEl.showModal()"
+      class="avatar-item bg-white bg-opacity-50 rounded-full cursor-pointer"
+      aria-role="button"
+      :style="getPositionStyle(users.length, users.length + 1)"
+    >
+      <div
+        class="tooltip tooltip-bottom tooltip-open animation-gentle-pulse"
+        x-init="setTimeout(() => $el.classList.remove('tooltip-open'), 5000)"
+        x-bind:data-tip="'(You) ' + getTooltipText(myPresence.emoji, myName)"
+      >
+        <div class="emoji-avatar" x-text="myPresence.emoji || '😌'"></div>
+        <span x-text="myPresence.countryFlag" class="absolute -bottom-2 -right-2 text-2xl"></span>
+        <span
+          x-show="myPresence.joinedAt && timeElapsed"
+          class="absolute -top-2 -left-2 text-xs bg-base-100 text-cyan-800 rounded-full px-2 py-1 w-fit"
+          x-text="timeElapsed"
+          x-cloak></span>
+      </div>
+    </div>
+  </div>
+
+  <footer
+    class="flex flex-col gap-2 not-prose fixed bottom-6 text-cyan-50 left-0 right-0 text-xs text-white text-opacity-50 text-center"
+  >
+    <ul class="max-w-sm mx-auto flex-wrap flex items-center justify-center gap-4">
+      <li><p>© 2024</p></li>
+      <li><p>Made with 🕊️ by <a target="_blank" href="https://cameronpak.com">Cameron Pak</a></p></li>
+    </ul>
+    <ul class="max-w-sm mx-auto flex-wrap flex items-center justify-center gap-4">
+      <li><p><a target="_blank" href="https://github.com/cameronapak/be-still">Open Source</a></p></li>
+      <li><p><a target="_blank" href="https://faith.tools/prayer">Prayer Apps</a></p></li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+  import Alpine from "alpinejs";
+  import PartySocket from "partysocket";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("room", function () {
+      return {
+        async shareRoomId() {
+          const shareUrl = `${window.location.origin}/room/${this.roomId}`;
+          const title = "Join me in prayer or quiet time";
+          try {
+            await navigator.share({
+              title,
+              url: shareUrl
+            });
+          } catch (error) {
+            await navigator.clipboard.writeText(title + " " + shareUrl);
+            alert("Copied to clipboard: " + title + " " + shareUrl);
+            console.error("Failed to share room ID:", error);
+          }
+        },
+        roomId: "",
+        emojiOptions: {
+          spiritualDisciplines: [
+            { value: "🙏", label: "Praying" },
+            { value: "📖", label: "Reading Scripture" },
+            { value: "🙌", label: "Praising" },
+            { value: "🤲", label: "Praying for Others" },
+            { value: "💭", label: "Reflecting" },
+            { value: "🎵", label: "Worshiping" },
+            { value: "🕯️", label: "Meditating" },
+            { value: "🧘", label: "Being Still" },
+            { value: "🤗", label: "Practicing Gratitude" }
+          ],
+          feelings: [
+            { value: "😌", label: "Content" },
+            { value: "😊", label: "Peaceful" },
+            { value: "🥺", label: "Seeking" },
+            { value: "😢", label: "Grieving" },
+            { value: "😇", label: "Grateful" },
+            { value: "✨", label: "Blessed" }
+          ]
+        },
+        toggleMusic() {
+          if (this.audio) {
+            if (this.audio.paused) {
+              this.audio.play();
+            } else {
+              this.audio.pause();
+            }
+          } else {
+            this.audio = new Audio("https://soulrest.b-cdn.net/rest.mp3");
+            this.audio.preload = "auto";
+            this.audio.play();
+          }
+          this.hasClickedPlay = true;
+        },
+        hasClickedPlay: false,
+        goForwards15Seconds() {
+          if (this.audio?.currentTime) {
+            this.audio.currentTime += 15;
+          }
+        },
+        goBackwards15Seconds() {
+          if (this.audio?.currentTime) {
+            this.audio.currentTime -= 15;
+          }
+        },
+        updateAudioProgress() {
+          if (!this.audio) {
+            console.warn("Audio element missing in updateAudioProgress");
+            return;
+          }
+
+          if (!this.$refs.radialProgressEl) {
+            console.warn("Progress element ref missing");
+            return;
+          }
+
+          const percentage = Math.floor((this.audio.currentTime / this.audio.duration) * 100) || 0;
+          this.$refs.radialProgressEl.style.setProperty("--value", percentage.toString());
+
+          if (percentage === 100) {
+            this.tearDownAudioProgressInterval();
+          }
+        },
+        remainingTime() {
+          if (!this.audio) {
+            return;
+          }
+
+          return Math.floor(this.audio.duration - this.audio.currentTime);
+        },
+        setUpAudioProgressInterval() {
+          if (!this.audioProgressInterval) {
+            this.audioProgressInterval = setInterval(() => this.updateAudioProgress(), 500);
+          }
+        },
+        tearDownAudioProgressInterval() {
+          if (this.audioProgressInterval) {
+            clearInterval(this.audioProgressInterval);
+            this.audioProgressInterval = null;
+          }
+        },
+        audioProgressInterval: null as NodeJS.Timeout | null,
+        audio: null as HTMLAudioElement | null,
+        get isPlaying() {
+          if (!this.audio) {
+            return false;
+          }
+
+          if (this.audio.paused) {
+            return false;
+          }
+
+          return true;
+        },
+        nameError: "",
+        // @ts-ignore - this.$persist is not typed
+        isNameAppropriate: this.$persist(false) as boolean,
+        async validateName(name: string) {
+          if (!name) {
+            this.nameError = "";
+            this.isNameAppropriate = false;
+            return;
+          }
+
+          try {
+            const response = await fetch("/api/groq.json", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                name,
+                userPrompt: `Is this name valid and appropriate for a prayer room? Only respond with 'yes' or 'no': ${name}`,
+                systemPrompt: `You are a helpful assistant that validates names to see if they're safe for public display. Only respond with "yes" or "no"`
+              })
+            });
+
+            if (response.status === 429) {
+              this.nameError = "Too many requests. Please try again later.";
+              this.isNameAppropriate = false;
+              return;
+            }
+
+            const data = await response.json();
+
+            if (!data.isAppropriate) {
+              this.nameError = data.message;
+              this.myName = ""; // Clear invalid name
+              this.isNameAppropriate = false;
+            } else {
+              this.nameError = "";
+              this.myName = name;
+              this.isNameAppropriate = true;
+            }
+          } catch (error) {
+            console.error("Name validation error:", error);
+            // Fallback to basic validation if API check fails
+            if (name.length < 2 || name.length > 48) {
+              this.nameError = "Name must be between 2 and 48 characters";
+              this.myName = "";
+            }
+          }
+        },
+        startQuietTime() {
+          if (this.nameError) {
+            return;
+          }
+          (this.$refs.settingsModalEl as HTMLDialogElement).close();
+        },
+        // @ts-ignore
+        myName: this.$persist("") as string,
+        myPresence: { emoji: "😌", name: "", countryFlag: "🌎", joinedAt: new Date().getTime() },
+        updateEmoji() {
+          this.sendPresence();
+        },
+        users: [] as any[],
+        setUsers(users: any[]) {
+          this.users = users;
+          const totalParticipants = users.length + 1;
+          const scale = Math.max(1 - (totalParticipants - 4) * 0.3, 0.6);
+          document.documentElement.style.setProperty("--avatar-scale", scale.toString());
+        },
+        timeElapsed: "",
+        updateTimeElapsed() {
+          // Update my time elapsed
+          if (!this.myPresence.joinedAt) {
+            this.timeElapsed = "";
+            return;
+          }
+          const mins = Math.floor((Date.now() - this.myPresence.joinedAt) / 60000);
+          if (mins === 0) {
+            this.timeElapsed = "";
+          } else {
+            this.timeElapsed = mins + "m";
+          }
+
+          // Update other users' time elapsed
+          this.users = this.users.map((user: any) => {
+            const timeElapsed = user.presence.joinedAt ? Math.floor((Date.now() - user.presence.joinedAt) / 60000) : 0;
+            return {
+              ...user,
+              timeElapsed: timeElapsed ? timeElapsed + "m" : ""
+            };
+          });
+        },
+        timeElapsedInterval: null as NodeJS.Timeout | null,
+        async init() {
+          this.$watch("roomId", (newRoomId: string) => {
+            this.setupRoom(newRoomId);
+          });
+
+          await this.detectCountry();
+
+          if (this.myName && !this.isNameAppropriate) {
+            this.validateName(this.myName);
+          }
+
+          this.$watch("isPlaying", (isPlaying) => {
+            if (!isPlaying) {
+              this.tearDownAudioProgressInterval();
+            } else {
+              this.setUpAudioProgressInterval();
+            }
+          });
+
+          // Set up time elapsed interval
+          this.updateTimeElapsed();
+          this.timeElapsedInterval = setInterval(() => this.updateTimeElapsed(), 1000); // Update every second
+        },
+        async detectCountry() {
+          try {
+            const response = await fetch("https://ipapi.co/json/");
+            const data = await response.json();
+            // Convert country code to flag emoji
+            const countryCode = data.country_code;
+            const flagEmoji = countryCode
+              ? String.fromCodePoint(...[...countryCode.toUpperCase()].map((c) => c.charCodeAt(0) + 127397))
+              : "🌎";
+            this.myPresence.countryFlag = flagEmoji;
+            this.sendPresence();
+          } catch (error) {
+            console.error("Error detecting country:", error);
+            this.myPresence.countryFlag = "🌎";
+          }
+        },
+        getTooltipText(emoji: string, name: string) {
+          let text =
+            this.emojiOptions.feelings.find((option) => option.value === emoji)?.label ||
+            this.emojiOptions.spiritualDisciplines.find((option) => option.value === emoji)?.label ||
+            "";
+          if (name && text) {
+            text = `${name} is ${text}`;
+          } else if (name && !text) {
+            text = name;
+          }
+          return text;
+        },
+        async createRoom() {
+          const response = await fetch("/api/create-room.json");
+          const { roomId } = await response.json();
+
+          // Wait for at least 3 seconds before redirecting (too fast).
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+
+          window.location.href = `/room/${roomId}`;
+        },
+        setupRoom(roomId: string = "prayer-room") {
+          const socket = new PartySocket({
+            host: import.meta.env.DEV ? "localhost:1999" : "https://freedom-stack-party.cameronapak.partykit.dev",
+            room: roomId,
+            party: "main",
+            connectionTimeout: 3600000 // 1 hour in milliseconds
+          });
+
+          socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+          });
+
+          socket.addEventListener("close", (event) => {
+            console.log("WebSocket closed:", event.code, event.reason);
+            setTimeout(() => this.socket?.reconnect(), 3000);
+          });
+
+          socket.addEventListener("message", (event: any) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === "state_update") {
+                const otherUsers = data.users.filter((user: any) => user.connectionId !== socket.id);
+                this.setUsers(otherUsers);
+              }
+            } catch (error) {
+              console.error("Error parsing message:", error);
+            }
+          });
+
+          this.socket = socket;
+
+          // Send initial presence when connected
+          socket.addEventListener("open", () => {
+            this.sendPresence();
+          });
+        },
+        socket: null as PartySocket | null,
+        getPositionStyle(index: number, total: number) {
+          if (total === 1) {
+            // Center the current user's avatar
+            return "transform: translate(-32px, -32px);";
+          }
+
+          // Adjust radius based on number of participants
+          const baseRadius = 130;
+          const radius = baseRadius + (total - 4) * 8; // Increase radius by 8px for each participant beyond 4
+          const angle = (2 * Math.PI * index) / total;
+          // Subtract half the avatar size (32px) to center each avatar
+          const x = radius * Math.cos(angle) - 32;
+          const y = radius * Math.sin(angle) - 32;
+          return `transform: translate(${x}px, ${y}px);`;
+        },
+        sendPresence() {
+          if (this.socket?.readyState === WebSocket.OPEN) {
+            this.socket.send(
+              JSON.stringify({
+                type: "presence",
+                presence: {
+                  emoji: this.myPresence.emoji,
+                  name: this.myName,
+                  countryFlag: this.myPresence.countryFlag,
+                  joinedAt: this.myPresence.joinedAt
+                }
+              })
+            );
+          }
+        }
+      };
+    });
+  });
+</script>

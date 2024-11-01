@@ -72,3 +72,77 @@
     transform: scale(1.1); /* Exhale halfway */
   }
 }
+
+.avatar-circle-container {
+  position: relative;
+  height: calc(100vh - 144px);
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Center glowing circle */
+.avatar-circle-container::before {
+  @apply content-[''] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full;
+  @apply bg-[radial-gradient(circle,theme(colors.cyan.100/0.2)_0%,theme(colors.cyan.100/0.1)_40%,theme(colors.cyan.100/0)_70%)];
+  animation: pulse 6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.avatar-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+  transition: transform 0.3s ease-out;
+  box-shadow: 0 0 11px 4px rgba(255, 255, 255, 0.3);
+  border-radius: 99px;
+  scale: var(--avatar-scale);
+}
+
+.avatar-wrapper {
+  width: 64px;
+  height: 64px;
+}
+
+.emoji-avatar {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem; /* Adjust size as needed */
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+}
+
+/* Add this new CSS to scale avatars based on participant count */
+[x-data="room"] {
+  --avatar-scale: 1;
+}
+
+@keyframes progress {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

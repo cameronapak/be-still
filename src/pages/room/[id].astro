@@ -1,6 +1,15 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import PrayerRoom from "../components/PrayerRoom.astro";
+import Layout from "../../layouts/Layout.astro";
+import PrayerRoom from "../../components/PrayerRoom.astro";
+import { isValidRoomId } from "../../utils/prayer-id";
+
+const { id } = Astro.params;
+
+const isValidRoom = id && isValidRoomId(id);
+
+if (!isValidRoom) {
+  return Astro.redirect("/", 302);
+}
 
 // The browser should always check freshness
 Astro.response.headers.set("cache-control", "public, max-age=0, must-revalidate");
@@ -13,5 +22,5 @@ Astro.response.headers.set("netlify-cdn-cache-control", "s-maxage=31536000");
   title="Join me in prayer or quiet time"
   description="Be still is an instant online prayer room where you can have a quiet time and pray with others."
 >
-  <PrayerRoom allowCreateRoom={true} />
+  <PrayerRoom roomId={id} />
 </Layout>
