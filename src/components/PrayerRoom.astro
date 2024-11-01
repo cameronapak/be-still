@@ -131,7 +131,7 @@ if (roomId !== "prayer-room") {
             </button>
           ) : null
         }
-        <button x-bind:disabled="!isNameAppropriate" class="btn" @click="startQuietTime()">Join Room</button>
+        <button x-bind:disabled="!isNameAppropriate" class="btn" @click="startQuietTime()">Start</button>
       </div>
     </div>
     <form x-bind:disabled="!isNameAppropriate" method="dialog" class="modal-backdrop">
@@ -200,7 +200,10 @@ if (roomId !== "prayer-room") {
     Alpine.data("room", function () {
       return {
         async shareRoomId() {
-          const shareUrl = `${window.location.origin}/room/${this.roomId}`;
+          let shareUrl = window.location.origin + "/";
+          if (this.roomId && this.roomId !== "prayer-room") {
+            shareUrl = window.location.origin + `/room/${this.roomId}`;
+          }
           const title = "Join me in prayer or quiet time";
           try {
             await navigator.share({
@@ -208,8 +211,8 @@ if (roomId !== "prayer-room") {
               url: shareUrl
             });
           } catch (error) {
-            await navigator.clipboard.writeText(title + " " + shareUrl);
-            alert("Copied to clipboard: " + title + " " + shareUrl);
+            await navigator.clipboard.writeText(title + ": " + shareUrl);
+            alert("Copied to clipboard:\n\n" + title + ": " + shareUrl);
             console.error("Failed to share room ID:", error);
           }
         },
