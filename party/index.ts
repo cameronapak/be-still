@@ -36,7 +36,7 @@ export default class Server implements Party.Server {
 
   onConnect(conn: Party.Connection) {
     const isHost = this.users.size === 0;
-    
+
     this.users.set(conn.id, {
       connectionId: conn.id,
       isHost,
@@ -44,8 +44,8 @@ export default class Server implements Party.Server {
         emoji: "😌",
         name: "",
         countryFlag: "🌎",
-        joinedAt: new Date().getTime(),
-      },
+        joinedAt: new Date().getTime()
+      }
     });
 
     this.sendStateToClient(conn);
@@ -53,18 +53,18 @@ export default class Server implements Party.Server {
 
   onClose(conn: Party.Connection) {
     const user = this.users.get(conn.id);
-    
+
     if (user?.isHost) {
       const closeMessage = {
         type: "room_closed",
         message: "Host has left the room"
       };
-      
+
       for (const connection of this.room.getConnections()) {
         connection.send(JSON.stringify(closeMessage));
       }
     }
-    
+
     this.users.delete(conn.id);
     this.broadcastState();
   }
@@ -80,7 +80,7 @@ export default class Server implements Party.Server {
             emoji: data.presence.emoji,
             name: data.presence.name,
             countryFlag: data.presence.countryFlag,
-            joinedAt: data.presence.joinedAt || currentUser.presence.joinedAt,
+            joinedAt: data.presence.joinedAt || currentUser.presence.joinedAt
           };
           this.users.set(sender.id, currentUser);
 

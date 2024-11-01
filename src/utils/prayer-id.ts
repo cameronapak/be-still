@@ -13,9 +13,5 @@ export function generateRoomId(): string {
 
 export function isValidRoomId(roomId: string): boolean {
   const [adj, noun, numbers] = roomId.split("-");
-  return (
-    adjectives.includes(adj) &&
-    nouns.includes(noun) &&
-    /^\d{3}$/.test(numbers)
-  );
+  return adjectives.includes(adj) && nouns.includes(noun) && /^\d{3}$/.test(numbers);
 }
