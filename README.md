@@ -83,7 +83,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-I hope this prompt empowers you to create Christian AI tools that bring people closer to God's word, their identity in Christ, and in fellowship with community
+faith.tools exists to empower and equip Christians in tech to fulfill the Great Commission.
 
 ## Contributing
 
