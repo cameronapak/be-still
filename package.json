@@ -1,7 +1,7 @@
 {
   "name": "be-still",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "concurrently \"astro dev\" \"partykit dev\"",
     "dev:host": "concurrently \"astro dev --host\" \"partykit dev\"",
@@ -9,7 +9,6 @@
     "build": "astro check && astro build --remote",
     "preview": "astro preview",
     "db:push": "astro db push --remote",
-    "db:login": "astro login",
     "partykit:deploy": "partykit deploy",
     "partykit:login": "partykit login",
     "partykit:dev": "partykit dev",
