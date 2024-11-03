@@ -20,15 +20,13 @@ A digital prayer room experience, inspired by real life prayer rooms, the Prayro
 - A Groq API key (for AI features to help determine if a user's name is safe for public display)
 - A Partykit account (for the WebSocket server)
 
-### Setup Steps
-
-1. Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/cameronapak/be-still.git
 ```
 
-2. Install dependencies
+### 2. Install dependencies
 
 Must be using Node.js v20.3.0 or higher.
 
@@ -36,7 +34,7 @@ Must be using Node.js v20.3.0 or higher.
 npm install
 ```
 
-3. Set environment variables
+### 3. Set environment variables
 
 Copy the `.env.example` file to `.env` and populate the variables.
 
@@ -46,13 +44,13 @@ cp .env.example .env
 
 [Get your own Groq API key.](https://console.groq.com/keys)
 
-4. Setup the Partykit backend. [Learn more](https://docs.partykit.io/reference/partykit-cli/#login)
+### 4. Setup the Partykit backend. [Learn more](https://docs.partykit.io/reference/partykit-cli/#login)
 
 ```bash
 npm run partykit:login
 ```
 
-5. Run the development server
+### 5. Run the development server
 
 ```bash
 npm run dev
