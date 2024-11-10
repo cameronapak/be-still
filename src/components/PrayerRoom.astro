@@ -267,6 +267,7 @@ if (roomId !== "prayer-room") {
           } else {
             this.audio = new Audio("https://soulrest.b-cdn.net/rest.mp3");
             this.audio.preload = "auto";
+            this.audio.loop = true;
             this.audio.play();
           }
           this.hasClickedPlay = true;
@@ -295,10 +296,6 @@ if (roomId !== "prayer-room") {
 
           const percentage = Math.floor((this.audio.currentTime / this.audio.duration) * 100) || 0;
           this.$refs.radialProgressEl.style.setProperty("--value", percentage.toString());
-
-          if (percentage === 100) {
-            this.tearDownAudioProgressInterval();
-          }
         },
         remainingTime() {
           if (!this.audio) {
